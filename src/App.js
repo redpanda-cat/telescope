@@ -1,10 +1,19 @@
-import data from "./data.json";
+import devData from "./data.json";
 import { Sankey } from "@shahlab/planetarium";
 
-function App() {
+const App = (args) => {
   return (
-    <Sankey
-      data={data}
+    <div>
+      <Sankey {...args} />
+      <div style={{ position: "absolute", bottom: 10, right: 10 }}>V1.0</div>
+    </div>
+  );
+};
+
+const Dev = () => {
+  return (
+    <App
+      data={devData}
       width={800}
       height={700}
       subsetParam="cell_type"
@@ -13,6 +22,10 @@ function App() {
       timepointParam="treatment"
     />
   );
-}
+};
 
-export default App;
+const Prod = () => {
+  return <App {...window.appArgs} />;
+};
+
+export default process.env.NODE_ENV === "development" ? Dev : Prod;
