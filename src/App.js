@@ -5,7 +5,7 @@ const App = (args) => {
   return (
     <div>
       <Sankey {...args} />
-      <div style={{ position: "absolute", bottom: 10, right: 10 }}>V1.0</div>
+      <div style={{ position: "absolute", bottom: 10, right: 10 }}>V2.0</div>
     </div>
   );
 };
