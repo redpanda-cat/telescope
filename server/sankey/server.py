@@ -62,7 +62,7 @@ def cells():
     return response
 
 
-@app.route('/degenes')
+@app.route('/api/degenes')
 def degenes():
     timepoints = request.args.get('timepoint', []).split(',')
     phenotypes = request.args.get('phenotype', []).split(',')
