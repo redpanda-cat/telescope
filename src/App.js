@@ -10,11 +10,8 @@ import { Sankey, UMAP, sortAlphanumeric } from "@shahlab/planetarium";
 import Info from "./sankey/Info";
 import Table from "./sankey/Table";
 
-const App = ({ subsetParam, cloneParam, timepointParam, ...args }) => {
+const FetchApp = () => {
   const [data, setData] = useState(null);
-  const [filters, setFilters] = useState(null);
-  const [highlightedIDs, setHighlightedIDs] = useState(null);
-
   // Initial data fetch
   useEffect(() => {
     fetch("/api/data")
@@ -23,6 +20,13 @@ const App = ({ subsetParam, cloneParam, timepointParam, ...args }) => {
         setData(result);
       });
   }, []);
+
+  return data ? <App {...data} /> : null;
+};
+
+const App = ({ subsetParam, cloneParam, timepointParam, data, ...args }) => {
+  const [filters, setFilters] = useState(null);
+  const [highlightedIDs, setHighlightedIDs] = useState(null);
 
   // Data fetch for highlighted cells
   useEffect(() => {
@@ -73,7 +77,7 @@ const App = ({ subsetParam, cloneParam, timepointParam, ...args }) => {
     : [];
   const colors = scaleOrdinal(subsets, schemeTableau10);
 
-  return data ? (
+  return (
     <Box sx={{ p: 1 }}>
       <Grid
         container
@@ -126,24 +130,7 @@ const App = ({ subsetParam, cloneParam, timepointParam, ...args }) => {
       </Grid>
       <div style={{ position: "absolute", bottom: 10, right: 10 }}>V3.0</div>
     </Box>
-  ) : null;
-};
-
-const Dev = () => {
-  return (
-    <App
-      width={800}
-      height={700}
-      subsetParam="cell_type"
-      cloneParam="clone_id"
-      timepointOrder={["Pre", "Post"]}
-      timepointParam="treatment"
-    />
   );
 };
 
-const Prod = () => {
-  return <App {...window.appArgs} />;
-};
-
-export default process.env.NODE_ENV === "development" ? Dev : Prod;
+export default FetchApp;

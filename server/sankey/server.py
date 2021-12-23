@@ -1,8 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 import argparse
-from jinja2 import Template
 
 import scanpy as sc
 import pandas as pd
@@ -10,10 +9,9 @@ import pandas as pd
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
-
+@app.route('/')
+def serve():
+    return render_template('template.html', dashboard="Sankey", dashboard_id=app.config['dashboard_id'])
 
 @app.route('/api/data')
 def data():
@@ -30,8 +28,17 @@ def data():
    df = df.rename(columns={'index': 'cell_id'})
 
    df = df.merge(umap, left_index=True, right_index=True)
-
-   response = jsonify(df.to_dict(orient='records'))
+   
+   app_args = {
+       "data": df.to_dict(orient='records'),
+        "width": app.config['width'],
+        "height": app.config['height'],
+        "subsetParam": app.config['phenotype'],
+        "cloneParam": app.config['clone'],
+        "timepointParam": app.config['timepoint'],
+        "timepointOrder": app.config['timepoints']
+    }
+   response = jsonify(app_args)
    response.headers.add("Access-Control-Allow-Origin", "*")
 
    return response
@@ -96,7 +103,8 @@ def degenes():
 
     return response
 
-def configure_app(path, timepoint, phenotype, clone, order, threshold):
+
+def configure_app(path, timepoint, phenotype, clone, order, threshold, width,height, dashboard_id):
 
     assert threshold > 0, 'Input threshold of at least 1'
 
@@ -117,7 +125,10 @@ def configure_app(path, timepoint, phenotype, clone, order, threshold):
         threshold=threshold,
         timepoint=timepoint,
         phenotype=phenotype,
-        clone=clone
+        clone=clone,
+        width=width,
+        height=height,
+        dashboard_id=dashboard_id
     )
 
 def open_data(filepath, timepoint, phenotype, clone_id):
@@ -175,6 +186,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    configure_app(args.path, args.timepoint, args.phenotype, args.clone, args.order, args.threshold)
+    configure_app(args.path, args.timepoint, args.phenotype, args.clone, args.order, args.threshold, args.width, args.height, args.dashboard_id)
 
     app.run()
